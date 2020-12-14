@@ -60,6 +60,10 @@ open class Node: Drawable {
         return [nodeBy(predicate: predicate)].compactMap { $0 }
     }
 
+    public func remveAllTouchPressedHanders() {
+        self.touchPressedHandlers.removeAll()
+    }
+
     // MARK: - Events
     internal var animationObservers = [AnimationObserver]()
 
@@ -81,7 +85,7 @@ open class Node: Drawable {
         let handler = ChangeHandler<TouchEvent>(f)
         touchPressedHandlers.append(handler)
 
-        return Disposable { [weak self, unowned handler]  in
+        return Disposable { [weak self, unowned handler] in
             guard let index = self?.touchPressedHandlers.firstIndex(of: handler) else {
                 return
             }
@@ -124,7 +128,7 @@ open class Node: Drawable {
 
         tapHandlers[tapCount] = handlers
 
-        return Disposable { [weak self, unowned handler]  in
+        return Disposable { [weak self, unowned handler] in
             guard let index = self?.tapHandlers[tapCount]?.firstIndex(of: handler) else {
                 return
             }
@@ -201,7 +205,7 @@ open class Node: Drawable {
 
     // MARK: - Multiple tap handling
 
-    func handleTap( _ event: TapEvent ) {
+    func handleTap(_ event: TapEvent) {
         if isLongTapInProgress {
             prevTouchCount = 0
             return
@@ -230,7 +234,7 @@ open class Node: Drawable {
             prevTouchCount = 0
             return
         }
-        for touchCount in tapHandlers.keys.sorted(by: { $0>$1 }) {
+        for touchCount in tapHandlers.keys.sorted(by: { $0 > $1 }) {
             if touchCount <= prevTouchCount, let event = timer.userInfo as? TapEvent {
                 // no more taps coming, settle for next best thing
                 for _ in 0..<prevTouchCount / touchCount { // might need to call it multiple times
@@ -244,7 +248,7 @@ open class Node: Drawable {
 
     // MARK: - Helpers
 
-    func handleLongTap( _ event: TapEvent, touchBegan: Bool ) {
+    func handleLongTap(_ event: TapEvent, touchBegan: Bool) {
         isLongTapInProgress = touchBegan
         if touchBegan {
             return
@@ -252,15 +256,15 @@ open class Node: Drawable {
         longTapHandlers.forEach { handler in handler.handle(event) }
     }
 
-    func handlePan( _ event: PanEvent ) {
+    func handlePan(_ event: PanEvent) {
         panHandlers.forEach { handler in handler.handle(event) }
     }
 
-    func handleRotate( _ event: RotateEvent ) {
+    func handleRotate(_ event: RotateEvent) {
         rotateHandlers.forEach { handler in handler.handle(event) }
     }
 
-    func handlePinch( _ event: PinchEvent ) {
+    func handlePinch(_ event: PinchEvent) {
         pinchHandlers.forEach { handler in handler.handle(event) }
     }
 
